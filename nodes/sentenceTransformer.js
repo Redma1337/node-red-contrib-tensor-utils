@@ -1,37 +1,30 @@
-const {spawn} = require("child_process");
+const { spawn } = require("child_process");
+const path = require("path");
+
 module.exports = (RED => {
 
     function SentenceTransformer(config) {
         RED.nodes.createNode(this, config);
-
-        let model_id = config.model || 'sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2';
 
         let node = this;
         node.on("input",
             ((msg, send, done) => {
                 send = send || (() => { node.send.apply(node, arguments) });
 
+
                 if (msg.terms) {
                     this.status({ fill: 'yellow', shape: 'dot', text: 'Converting...' });
 
                     const { spawn } = require('child_process')
-                    const python = spawn('python', ['C:\\Users\\weser\\PyCharmProjects\\sentenceTransforming\\main.py', model_id, JSON.stringify(msg.terms)]);
-
+                    const python = spawn('python', [path.join(__dirname, '..', 'core', 'main.py'), 'sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2', JSON.stringify(msg.terms)]);
                     python.stdout.on('data', (data) => {
                         try {
                             msg.payload = JSON.parse(data.toString());
-                        } catch (err) {
-                            if (err) {
-                                if (done) {
-                                    done(err);
-                                } else {
-                                    node.error(err, msg);
-                                }
-                            }                        }
+                        } catch (err) {}
                     });
 
                     python.on('exit', (code) => {
-                        if (msg.payload) {
+                        if (Array.isArray(msg.payload)) {
                             this.status({ fill: 'green', shape: 'dot', text: `Received shape(${msg.payload.length}, ${msg.payload[0].length})` });
                             node.send(msg);
                         } else {
@@ -52,6 +45,8 @@ module.exports = (RED => {
                             this.status({ fill: 'green', shape: 'dot', text: 'finished' });
                             
                             msg.payload = config.raw ? embeddings : embeddings.arraySync();
+                                node.error(err, msg);
+                            }
                             node.send(msg);
                         }).catch(err => {
                             this.status({ fill: 'red', shape: 'dot', text: err.message });
@@ -72,8 +67,6 @@ module.exports = (RED => {
                             if (done) {
                                 done(err);
                             } else {
-                                node.error(err, msg);
-                            }
                         }
                     });
                     */
