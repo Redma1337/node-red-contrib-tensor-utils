@@ -3,9 +3,9 @@ from sentence_transformers import SentenceTransformer
 import sys
 
 if __name__ == '__main__':
-    model_id = sys.argv[1]
-    sentences = json.loads(sys.argv[2])
+    sentences = json.loads(sys.argv[1])
 
-    model = SentenceTransformer(model_id)
+    model = SentenceTransformer('sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2')
+
     embeddings = model.encode(sentences)
     print(json.dumps(embeddings.tolist()))

@@ -16,11 +16,15 @@ module.exports = (RED => {
                     this.status({ fill: 'yellow', shape: 'dot', text: 'Converting...' });
 
                     const { spawn } = require('child_process')
-                    const python = spawn('python', [path.join(__dirname, '..', 'core', 'main.py'), 'sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2', JSON.stringify(msg.terms)]);
+                    const python = spawn('python', [path.join(__dirname, '..', 'core', 'main.py'), JSON.stringify(msg.terms)]);
+
+                    console.log('Args', [path.join(__dirname, '..', 'core', 'main.py'), JSON.stringify(msg.terms)])
                     python.stdout.on('data', (data) => {
                         try {
                             msg.payload = JSON.parse(data.toString());
-                        } catch (err) {}
+                        } catch (err) {
+                            console.log(data);
+                        }
                     });
 
                     python.on('exit', (code) => {
@@ -38,10 +42,10 @@ module.exports = (RED => {
                     const use = require('@tensorflow-models/universal-sentence-encoder');
 
 
-                    use.load().then(model => {
+                    use.load().then(paraphrase-multilingual-MiniLM-L12-v2 => {
                         this.status({ fill: "yellow", shape: "dot", text: 'converting input' });
 
-                        model.embed(msg.terms).then(embeddings => {
+                        paraphrase-multilingual-MiniLM-L12-v2.embed(msg.terms).then(embeddings => {
                             this.status({ fill: 'green', shape: 'dot', text: 'finished' });
                             
                             msg.payload = config.raw ? embeddings : embeddings.arraySync();
